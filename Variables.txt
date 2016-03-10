@@ -1,0 +1,6 @@
+%rosterFile C:\Users\work\AppData\Roaming\mIRC\rosterinfo.txt
+%rosterID 1
+%startpoints 0
+%one 1
+%testtest 
+%oneh 99

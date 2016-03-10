@@ -1,0 +1,231 @@
+//How to use it commands
+//on 2:TEXT: means when someone with the rank of 2 or more types !info(do everything in the { msg $chan messages the current channel what ever you want
+//Please give me some command or credit for litteraly taking 20+ hours finding/making all of these commands. It sucked...
+on :TEXT:*!info:* {msg $chan coded by starfox707 who is ok at twitch bots. www.twitch.tv/starfox707
+
+//This flood gate of if ((%floodprize) stuff makes a timer called floodprize with 3 seconds on it and if there is a current timer on it will NOT execute the command thus preventing people from spamming
+on *:TEXT:*!prizelist:* {
+  if ((%floodprize) || ($($+(%,floodprize.,$nick),2))) { return }
+  set -u3 %floodprize On
+//Makes a timer called floodprize*username* with 10 seconds on it 
+  set -u10 %floodprize. $+ $nick On
+  msg $chan	Games currently available for giveaway - 
+}
+
+
+on *:TEXT:*!timepoll:* {
+  if ((%floodtimepoll) || ($($+(%,floodtimepoll.,$nick),2))) { return }
+  set -u3 %floodtime On
+  set -u10 %floodtime. $+ $nick On
+  msg $chan 	Vote for your ideal stream start time! 
+}
+
+on *:TEXT:*!time:* {
+  if ((%floodtime) || ($($+(%,floodtime.,$nick),2))) { return }
+  set -u3 %floodtime On
+  set -u10 %floodtime. $+ $nick On
+//messages the current computers time
+  msg $chan The stream time is currently $time
+}
+
+on 3:TEXT:*!cool:* {
+  if ((%floodcool) || ($($+(%,floodcool.,$nick),2))) { return }
+  set -u3 %floodcool On
+  set -u10 %floodcool. $+ $nick On
+//messages the users names and adds is REALLY cool after it
+  msg $chan /me $nick is REALLY cool
+}
+
+
+//An ascii mean with a twitch emote :D
+//I guess notepad doesnt like non ascii characters but there was a gun after the FeeldsBadMan
+on 2:TEXT:!feelsbadman:* {msg $chan FeelsBadMan 
+
+
+
+//Anyone that is rank 5 or more (mod or admin) can type !addquote and it will add what ever is after it to a file called quotes
+on 5:TEXT:!addquote *:#: {
+  if($nick 
+  write quotesinfo.txt $2- $+
+  msg $chan Added: $2-
+}
+
+//Commands that mods and admins can use
+on 5*:TEXT:!adminhelp*:#: {msg $chan  !startstream !startan !endstream - !points add [username] [amount] 
+
+//Will pull a random quote from the quotes file
+on 3:TEXT:!quote:#: {
+
+  msg $chan $read(quotesinfo.txt)
+}
+
+//List of all commands for the namastegaming channel
+on *:TEXT:!help:#: {
+  set -u10 %floodhelp On
+  set -u10 %floodhelp. $+ $nick On
+  msg $chan $nick Commands can be found here: https://goo.gl/qiX1lu
+}
+
+
+
+//!!!!!!!!!!!!!!!!!!!!!!!! Admin commands
+
+
+//Will start the announcer that posts ever 5 minutes
+on 5*:TEXT:!startan:#: {
+  msg # Announcer is now starting.
+//starts a new timer
+  .timerAnnouncer 0 900 /play # C:\Users\work\AppData\Roaming\mIRC\announcments.txt
+}
+
+//Will stop the announcer timer
+on 5*:TEXT:!stopan:#: {
+  msg # Announcer is now stopping.
+  .timerAnnouncer off
+}
+
+//Ya right ;)
+on *:TEXT:!buyMod:#: {
+  msg $chan $nick is now a Mod!... YA RIGHT!
+}
+
+
+
+
+//!!!!!!!!!!!!!!!!!!!!!!!! Start Using points
+
+//Will check if the user has enough points and if they do then it will subract X amount of points and will format the song that they requested in a format that night bot can use. 
+//!!!!!!MAKE SURE THAT YOU ARE USING NIGHT BOT BETA (As of 3/9/2016) normal night bot will not work properly. You need night bot beta and you need to exempt all mods from a song request and only expect song requests from mods
+on *:TEXT:!sr*:#: {
+
+  var %userpoints = $readini(Points.ini,$+(#,.,$nick),Points)
+
+  if (%userpoints > 5) {
+    msg $chan  !songrequest $2- 
+    writeini -n Points.ini $+(#,.,$nick) Points $calc($readini(Points.ini,$+(#,.,$nick),Points) - 5)
+  }
+  else {
+    msg $chan $nick you need 5 points for a song request
+  }
+
+}
+
+//Will buy the rank of regular. Note if a mod or anyone with a higher rank of reg (2) uses this it will replace (demote) their rank with 2
+on *:TEXT:*!buyReg:* {
+//makes a var of userpoints
+  var %userpoints = $readini(Points.ini,$+(#,.,$nick),Points)
+//check to see if they have 100 points or more. You can use a number like and not a var called %oneh if you like
+  if (%userpoints > %oneh) {
+    var %testtest = $nick
+//will add the user with the rank of 2
+    /auser 2 %testtest 
+//messages the channel :D
+    msg $chan Yaaaaaaaa %testtest is now a Regular
+//updates the points of the user
+    writeini -n Points.ini $+(#,.,$nick) Points $calc($readini(Points.ini,$+(#,.,$nick),Points) - 100)
+  }
+  else {
+    msg $chan $nick you need 100 points to buy the title of Regular
+  }
+}
+
+//same as reg but with 400 points to buy and rank 3
+on *:TEXT:*!buyTrust:* {
+  var %userpoints = $readini(Points.ini,$+(#,.,$nick),Points)
+
+  if (%userpoints > 400) {
+    var %testtest = $nick
+    /auser 3 %testtest 
+    msg $chan Fuck ya %testtest is now a Trusted member
+    writeini -n Points.ini $+(#,.,$nick) Points $calc($readini(Points.ini,$+(#,.,$nick),Points) - 400)
+  }
+  else {
+    msg $chan $nick you need 400 points to buy the title of Regular
+  }
+}
+
+
+
+
+
+//!!!!!!!!!!!!!!!!!!!!!!!! Start points
+
+
+//Starts the counting of points. It dissconects from the server and will reconnect to the last connected channel
+on 5*:TEXT:*!startstream:* {
+  %startpoints = 1
+  msg $chan Points have started
+  /server
+
+}
+//Will turn off the var start points and turns all timers off (counting points and announcer)
+on 5*:TEXT:*!endstream:* {
+  %startpoints = 0
+  msg $chan Points and Announcer have stopped
+  /timers off
+  /hop -c #YOURCHANNELNAMEHERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! <-----------
+}
+
+//A command I found on the internet
+alias -l addPoints {
+  if ($1 !isnum) { echo 2 -st $1 is not a number. It needs to be a number. | halt }
+  var %topic $+($chan,.,$nick)
+  var %points $calc($readini(Points.ini,%topic,Points) + $1)
+  writeini -n Points.ini %topic Points %points
+  return %points
+}
+
+//A command I found on the internet
+alias -l lookUpPoints {
+  var %topic $+($chan,.,$nick)
+  var %points $readini(Points.ini,%topic,Points)
+  return %points
+}
+
+//A command I found on the internet
+alias doaddpoints {
+  if ($3 !isnum) { echo 2 -st $3 is not a number. It needs to be a number. | halt }
+  var %topic $+($1,.,$2)
+  var %points $calc($readini(Points.ini,%topic,Points) + $3)
+  writeini -n Points.ini %topic Points %points
+  echo -a Added points for %topic
+}
+
+//A command I found on the internet
+alias dorempoints {
+  var %topic $+($1,.,$2)
+  remini -n Points.ini %topic Points
+  echo -a Removed points for %topic
+}
+
+//A command I found on the internet
+//Will message the channel how many points you have. You can turn on flood gate if being spammed
+on *:TEXT:!points:#:{
+  //if ((%floodpoints) || ($($+(%,floodpoints.,$nick),2))) { return }
+  // set -u2 %floodpoints On
+  // set -u10 %floodpoints. $+ $nick On
+  msg # $nick has $readini(Points.ini,$+(#,.,$nick),Points) total points.
+}
+
+//Will allow you to add or remove points from people. Look at use command down below
+on $*5:TEXT:/!points (add|remove)/Si:#:{
+  if ($nick isop #) {
+    if ($0 < 3) { msg # Insufficient parameters: Use !points <add|remove> <user> [number] | return }
+    writeini -n Points.ini $+(#,.,$3) Points $calc($readini(Points.ini,$+(#,.,$3),Points) $iif($2 == add,+,-) $iif($4 isnum,$4,1))
+    { msg $chan $4 now has $readini(Points.ini,$+(#,.,$3),Points) total points. }
+  }
+  else { return }
+}
+
+//When someone joins start a timer and then add points ONLY if the startpoints command (the starpoints var ==1) was called
+on !*:join:#:{
+  if (%startpoints == %one) {
+    $+(.timerpoints.,#,.,$nick) 0 300 add.pts $+(#,.,$nick)
+    add.pts $+(#,.,$nick) 
+  }
+}
+//stops the points timer for them
+on !*:part:#:$+(.timerpoints.,#,.,$nick) off
+alias -l add.pts {
+  writeini -n Points.ini $1 Points $calc($readini(Points.ini,$1,Points) + 1)
+}

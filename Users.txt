@@ -1,0 +1,2 @@
+; 1 is everyone 2 is regular 3 is trusted 4 is subscribers  5 is mods  and 6 is admins
+[users]
